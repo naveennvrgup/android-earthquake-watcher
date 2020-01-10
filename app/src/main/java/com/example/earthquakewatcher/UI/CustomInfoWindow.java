@@ -3,9 +3,13 @@ package com.example.earthquakewatcher.UI;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
+import com.example.earthquakewatcher.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
+
+import org.w3c.dom.Text;
 
 public class CustomInfoWindow implements GoogleMap.InfoWindowAdapter {
     private View view;
@@ -16,6 +20,7 @@ public class CustomInfoWindow implements GoogleMap.InfoWindowAdapter {
         this.context = context;
 
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        view = layoutInflater.inflate(R.layout.custom_info_window, null);
     }
 
     @Override
@@ -25,6 +30,11 @@ public class CustomInfoWindow implements GoogleMap.InfoWindowAdapter {
 
     @Override
     public View getInfoContents(Marker marker) {
-        return null;
+        TextView title = view.findViewById(R.id.winTitle);
+        TextView magnitude=view.findViewById(R.id.magnitude);
+
+        title.setText(marker.getTitle());
+        magnitude.setText(marker.getSnippet());
+        return view;
     }
 }
