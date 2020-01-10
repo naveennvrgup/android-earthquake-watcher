@@ -3,17 +3,23 @@ package com.example.earthquakewatcher.Activities;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.app.AlertDialog;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.Response.ErrorListener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -45,6 +51,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;
     private LocationListener locationListener;
     private RequestQueue requestQueue;
+    private AlertDialog.Builder alertDialogBuilder;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }
                 },
-                new Response.ErrorListener() {
+                new ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
@@ -157,8 +165,90 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 JSONObject geoJsonObj = contentObj.getJSONObject("geoserve.json");
 
                                 detailsUrl = geoJsonObj.getString("url");
+                                getMoreDetails(detailsUrl);
                             }
                             Log.d("naveen:", detailsUrl);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        );
+
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    private void getMoreDetails(String url) {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        alertDialogBuilder = new AlertDialog.Builder(MapsActivity.this);
+                        View view = getLayoutInflater().inflate(R.layout.popup, null);
+
+                        Button dismissButton = view.findViewById(R.id.dismissPop);
+                        Button dismissButtonTop = view.findViewById(R.id.desmissPopTop);
+                        TextView popList = view.findViewById(R.id.popList);
+                        WebView htmlPop = view.findViewById(R.id.htmlWebview);
+
+                        StringBuilder stringBuilder = new StringBuilder();
+
+                        try {
+                            if (response.has("tectonicSummary") && response.getString("tectonicSummary") != null) {
+                                JSONObject tectonic = response.getJSONObject("tectonicSummary");
+
+                                if (tectonic.has("text") && tectonic.getString("text") != null) {
+                                    String text = tectonic.getString("text");
+                                    htmlPop.loadDataWithBaseURL(null, text, "text/html", "UTF-8", null);
+                                }
+                            } else {
+                                String text = "<h4>404 no summary found!</h4>";
+                                htmlPop.loadDataWithBaseURL(null, text, "text/html", "UTF-8", null);
+                            }
+
+                            JSONArray cities = response.getJSONArray("cities");
+
+                            for (int i = 0; i < cities.length(); i++) {
+                                JSONObject citiesObj = cities.getJSONObject(i);
+
+                                stringBuilder.append("City: " + citiesObj.getString("name")
+                                        + "\n" + "Distance: " + citiesObj.getString("distance")
+                                        + "\n" + "Population: " + citiesObj.getString("population"));
+
+                                stringBuilder.append("\n\n");
+                            }
+                            popList.setText(stringBuilder);
+
+
+                            // dismiss btns
+                            dismissButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    alertDialog.dismiss();
+                                }
+                            });
+
+                            dismissButtonTop.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    alertDialog.dismiss();
+                                }
+                            });
+
+
+                            alertDialogBuilder.setView(view);
+                            alertDialog = alertDialogBuilder.create();
+                            alertDialog.show();
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
