@@ -4,6 +4,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -57,6 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private AlertDialog.Builder alertDialogBuilder;
     private AlertDialog alertDialog;
     private BitmapDescriptor[] iconColors;
+    private Button showListButton;
 
 
     @Override
@@ -67,6 +69,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        showListButton = findViewById(R.id.showListBtn);
+
+        showListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapsActivity.this,ShowListActivity.class));
+            }
+        });
 
         requestQueue = Volley.newRequestQueue(this);
         iconColors = new BitmapDescriptor[]{
