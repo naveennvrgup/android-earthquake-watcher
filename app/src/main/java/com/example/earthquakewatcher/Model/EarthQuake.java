@@ -3,14 +3,14 @@ package com.example.earthquakewatcher.Model;
 public class EarthQuake {
     private String place,detailLink,type;
     private long time;
-    private double mangnitude, lat, lon;
+    private double magnitude, lat, lon;
 
-    public EarthQuake(String place, String detailLink, String type, long time, double mangnitude, double lat, double lon) {
+    public EarthQuake(String place, String detailLink, String type, long time, double magnitude, double lat, double lon) {
         this.place = place;
         this.detailLink = detailLink;
         this.type = type;
         this.time = time;
-        this.mangnitude = mangnitude;
+        this.magnitude = magnitude;
         this.lat = lat;
         this.lon = lon;
     }
@@ -50,12 +50,12 @@ public class EarthQuake {
         this.time = time;
     }
 
-    public double getMangnitude() {
-        return mangnitude;
+    public double getmagnitude() {
+        return magnitude;
     }
 
-    public void setMangnitude(double mangnitude) {
-        this.mangnitude = mangnitude;
+    public void setmagnitude(double magnitude) {
+        this.magnitude = magnitude;
     }
 
     public double getLat() {
