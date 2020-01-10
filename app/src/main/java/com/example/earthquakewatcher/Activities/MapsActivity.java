@@ -9,6 +9,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -64,6 +65,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setInfoWindowAdapter(new CustomInfoWindow(getApplicationContext()));
+        mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnMarkerClickListener(this);
     }
 
     public void getEarthQuakes() {
@@ -128,11 +131,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onInfoWindowClick(Marker marker) {
+        Log.d("naveen: ", "info window");
+        getQuakeDetails(marker.getTag().toString());
+    }
 
+    private void getQuakeDetails(String url) {
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String detailsUrl = "";
+
+                        try {
+                            JSONObject properties = response.getJSONObject("properties");
+                            JSONObject products = properties.getJSONObject("products");
+                            JSONArray geoserve = products.getJSONArray("geoserve");
+
+                            for (int i = 0; i < geoserve.length(); i++) {
+                                JSONObject geoserveObj = geoserve.getJSONObject(i);
+                                JSONObject contentObj = geoserveObj.getJSONObject("contents");
+                                JSONObject geoJsonObj = contentObj.getJSONObject("geoserve.json");
+
+                                detailsUrl = geoJsonObj.getString("url");
+                            }
+                            Log.d("naveen:", detailsUrl);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        );
+
+        requestQueue.add(jsonObjectRequest);
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        Log.d("naveen: ", "marker");
         return false;
     }
 }
