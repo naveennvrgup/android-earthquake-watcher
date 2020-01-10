@@ -4,6 +4,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.app.AlertDialog;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -33,6 +34,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -130,6 +132,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 markerOptions.position(new LatLng(lat, lon));
                                 markerOptions.snippet("Magnitude: " + earthQuake.getmagnitude() + "\n" + "Date: " + formattedDate);
 
+                                if(earthQuake.getmagnitude()>=2.0){
+                                    CircleOptions circleOptions=new CircleOptions();
+                                    circleOptions.center(new LatLng(earthQuake.getLat(),earthQuake.getLon()));
+                                    circleOptions.radius(30000);
+                                    circleOptions.strokeWidth(5f);
+                                    circleOptions.fillColor(Color.RED);
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
+                                    mMap.addCircle(circleOptions);
+                                }
 
                                 Marker marker = mMap.addMarker(markerOptions);
                                 marker.setTag(earthQuake.getDetailLink());
